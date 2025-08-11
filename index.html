@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Job Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">
+            <span>📋</span>
+            <span>Job Management System</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+            <button class="btn btn-primary" onclick="openModal('job')">+ New Job</button>
+            <button class="btn btn-secondary" onclick="openModal('customer')">+ New Customer</button>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab active" onclick="switchTab('kanban')">Job Kanban</button>
+        <button class="tab" onclick="switchTab('jobs')">Jobs</button>
+        <button class="tab" onclick="switchTab('customers')">Customers</button>
+        <button class="tab" onclick="switchTab('history')">Job History</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Kanban Board -->
+        <div id="kanban" class="kanban-board">
+            <div class="kanban-column" data-status="Received">
+                <div class="kanban-header">
+                    <span class="kanban-title">Received</span>
+                    <span class="kanban-count">0</span>
+                </div>
+                <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+
+            <div class="kanban-column" data-status="Repair">
+                <div class="kanban-header">
+                    <span class="kanban-title">Repair</span>
+                    <span class="kanban-count">0</span>
+                </div>
+                <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+
+            <div class="kanban-column" data-status="Finish">
+                <div class="kanban-header">
+                    <span class="kanban-title">Finish</span>
+                    <span class="kanban-count">0</span>
+                </div>
+                <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+
+            <div class="kanban-column" data-status="Ready">
+                <div class="kanban-header">
+                    <span class="kanban-title">Ready</span>
+                    <span class="kanban-count">0</span>
+                </div>
+                <div class="kanban-cards" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+        </div>
+
+        <!-- Jobs List -->
+        <div id="jobs" class="list-view">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Job ID</th>
+                        <th>Customer</th>
+                        <th>Vehicle</th>
+                        <th>Status</th>
+                        <th>Date Received</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="jobsTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Customers List -->
+        <div id="customers" class="list-view">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Name</th>
+                        <th>Company</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Job History -->
+        <div id="history" class="list-view">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Job ID</th>
+                        <th>Action</th>
+                        <th>Status Change</th>
+                        <th>User</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Job Modal -->
+    <div id="jobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Job Details</h2>
+                <button class="modal-close" onclick="closeModal('job')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="jobForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Job ID</label>
+                            <input type="text" class="form-input" name="jobId" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="Received">Received</option>
+                                <option value="Repair">Repair</option>
+                                <option value="Finish">Finish</option>
+                                <option value="Ready">Ready</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Customer</label>
+                        <select class="form-select" name="customerId" required>
+                            <option value="">Select Customer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Vehicle Make</label>
+                            <input type="text" class="form-input" name="vehicleMake" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vehicle Model</label>
+                            <input type="text" class="form-input" name="vehicleModel" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Registration</label>
+                            <input type="text" class="form-input" name="registration">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rim Size</label>
+                            <input type="text" class="form-input" name="rimSize">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Service Type</label>
+                        <select class="form-select" name="service">
+                            <option value="Cosmetic Paint">Cosmetic Paint</option>
+                            <option value="Cosmetic CNC">Cosmetic CNC</option>
+                            <option value="Structural Crack Buckle">Structural Crack Buckle</option>
+                            <option value="Shadow Chrome">Shadow Chrome</option>
+                            <option value="Custom Color">Custom Color</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Wheel Details</label>
+                        <textarea class="form-textarea" name="wheelDetails"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Service Required</label>
+                        <textarea class="form-textarea" name="serviceRequired"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Units</label>
+                            <input type="number" class="form-input" name="units" value="4" min="1" max="10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <select class="form-select" name="priority">
+                                <option value="Normal">Normal</option>
+                                <option value="High">High</option>
+                                <option value="Urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row checkbox-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="fitBrand"> Fit Brand
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="tyreDetails"> Tyre Details
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="capsRequired"> Caps Required
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="sensorRequired"> Sensor Required
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" name="notes"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('job')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveJob()">Save Job</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Customer Details</h2>
+                <button class="modal-close" onclick="closeModal('customer')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="customerForm">
+                    <div class="form-group">
+                        <label class="form-label">Customer ID</label>
+                        <input type="text" class="form-input" name="customerId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-input" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company</label>
+                        <input type="text" class="form-input" name="company">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-input" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-textarea" name="address"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" name="notes"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('customer')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCustomer()">Save Customer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
